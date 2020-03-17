@@ -1,0 +1,97 @@
+﻿@using Microsoft.AspNet.Identity
+@model Domain.Reservation.ViewModels.ConfirmationViewModel
+
+<br />
+
+<h2>Rezerwacja</h2>
+<h5>Podsumowanie:</h5>
+<hr />
+<div class="row">
+    <div class="col-md-4 ">
+        <div id="ImagePlaceholder">
+            <img src="@Model.ImageUrl" class="image-placeholder"/>
+        </div>
+    </div>
+
+    <div class="form-horizontal col-md-3">
+
+        <div class="form-group">
+            <label for="Name" class="control-label">Imię</label>
+            <div>
+                <input id="Name" class="form-control" disabled value="@Model.UserName"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="LastName" class="control-label">Nazwisko</label>
+            <div>
+                <input type="text" id="LastName" class="form-control" disabled value="@Model.UserLastName" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Email" class="control-label">Email</label>
+            <div>
+                <input type="text" id="Email" class="form-control" disabled value="@Model.UserEmail" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-horizontal col-md-3 col-sm-offset-1">
+
+        <div class="form-group">
+            <label for="RoomName" class="control-label">Nazwa</label>
+            <div>
+                <input type="text" id="RoomName" class="form-control" disabled value="@Model.RoomName" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="RoomOptions" class="control-label">Wyposażenie</label>
+            <div>
+                <ul id="RoomOptions" runat="server">
+                    @foreach (string option in Model.RoomOptions)
+                    {
+                        <li>@option</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="Price" class="control-label">Cena</label>
+            <div>
+                <input type="text" id="Price" class="form-control" disabled value="@Model.TotalPriceString" />
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="row">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label for="ReservationStartDate" class="control-label col-md-2 col-md-offset-2">Zakwaterowanie od</label>
+            <div class="label-input col-md-3">
+                <input type="text" id="ReservationStartDate" class="form-control" disabled value="@Model.ReservationStartDate" />
+            </div>
+
+            <label for="ReservationEndDate" class="control-label label-input col-sm-1">do</label>
+            <div class="label-input col-md-3">
+                <input type="text" id="ReservationEndDate" class="form-control" disabled value="@Model.ReservationEndDate" />
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div>
+        <button class="btn btn-danger col-sm-offset-9" id="Cancel">Anuluj</button>
+        <button class="btn btn-primary" style="margin-left: 30px" id="DoReservation">Potwierdź</button>
+    </div>
+</div>
+
+<script>
+    $('#DoReservation').on('click', function () {
+        var roomName = $('#RoomName').val();
+        var reservationStartDate = $('#ReservationStartDate').val();
+        var reservationEndDate = $('#ReservationEndDate').val();
+        
+        var url = "DoReservation?roomName=" + roomName + "&reservationStartDate=" + reservationStartDate + "&reservationEndDate=" + reservationEndDate;
+        
+        window.location.href = url;
+    });
+</script>

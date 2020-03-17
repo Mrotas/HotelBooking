@@ -1,0 +1,220 @@
+﻿@using Microsoft.AspNet.Identity
+
+@{
+    ViewBag.Title = "Pokoje";
+}
+
+<br />
+
+<div class="container col-md-9 col-md-offset-1">
+    <div class="row">
+
+        <div class="form-group col-md-3">
+            <label for="ReservationStartDate">Zameldowanie:</label>
+            <input class="form-control" type="text" name="ReservationStartDate" id="ReservationStartDate" autocomplete="off"/>
+        </div>
+
+        <div class="form-group col-md-3">
+            <label for="ReservationEndDate">Wymeldowanie:</label>
+            <input class="form-control" type="text" name="ReservationEndDate" id="ReservationEndDate" autocomplete="off"/>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="AdultsSelect">Dorośli:</label>
+            <select class="form-control" name="AdultsSelect" id="AdultsSelect">
+                <option></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <label for="ChildrenSelect">Dzieci:</label>
+            <select class="form-control" name="ChildrenSelect" id="ChildrenSelect">
+                <option></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <button class="btn btn-primary" style="margin-top: 25px;" type="button" id="SearchButton">Szukaj</button>
+        </div>
+    </div>
+    <div class="row col-md-offset-1">
+        <div class="form-check form-check-inline col-md-3">
+            <input class="form-check-input" type="checkbox" id="ChildBed">
+            <label class="form-check-label" for="ChildBed">Łóżko dziecięce</label>
+        </div>
+        <div class="form-check form-check-inline col-md-3">
+            <input class="form-check-input" type="checkbox" id="AirConditioning">
+            <label class="form-check-label" for="AirConditioning">Klimatyzacja</label>
+        </div>
+        <div class="form-check form-check-inline col-md-2">
+            <input class="form-check-input" type="checkbox" id="WiFi">
+            <label class="form-check-label" for="WiFi">WiFi</label>
+        </div>
+        <div class="form-check form-check-inline col-md-2">
+            <input class="form-check-input" type="checkbox" id="Balcony">
+            <label class="form-check-label" for="Balcony">Balkon</label>
+        </div>
+    </div>
+
+    <br />
+
+    <table id="roomsTable" class="table table-bordered table-stripped"></table>
+</div>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.css" />
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+    function getDate(element) {
+        var date;
+        try {
+            date = $.datepicker.parseDate('dd/mm/yy', element.value );
+        } catch(error) {
+            date = null;
+        }
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    }
+
+    $(function() {
+        $("#ReservationStartDate").datepicker({
+            dateFormat: 'dd/mm/yy',
+            minDate: 0
+        }).on("change", function() {
+          $("#ReservationEndDate").datepicker("option", "minDate", getDate(this));
+        });
+
+        $("#ReservationEndDate").datepicker({
+             dateFormat: 'dd/mm/yy'
+        });
+    });
+
+    $('#SearchButton').on('click', function () {
+        var reservationStartDate = $.datepicker.parseDate('dd/mm/yy', $('#ReservationStartDate').val());
+        var reservationEndDate = $.datepicker.parseDate('dd/mm/yy', $('#ReservationEndDate').val());
+
+        var searchRoom = {
+            ReservationStartDate: reservationStartDate,
+            ReservationEndDate: reservationEndDate,
+            Adults: $('#AdultsSelect :selected').val(),
+            Children: $('#ChildrenSelect :selected').val(),
+            ChildBed: $('#ChildBed').is(':checked'),
+            AirConditioning: $('#AirConditioning').is(':checked'),
+            WiFi: $('#WiFi').is(':checked'),
+            Balcony: $('#Balcony').is(':checked')
+        }
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: 'Room/SearchRoom',
+            data: JSON.stringify({ searchRoomModel: searchRoom }),
+            dataType: 'json',
+            success: function (data) {
+                var rooms = data;
+                var oTable = $('#roomsTable').dataTable({
+                    "language": {
+                        "lengthMenu": "Pokaż _MENU_ wierszy na stronę",
+                        "zeroRecords": "Nie znaleziono pokojów spełniających kryteria",
+                        "info": "Strona _PAGE_ z _PAGES_",
+                        "infoEmpty": "Nie znaleziono pokojów",
+                        "infoFiltered": "(znaleziono z _MAX_ wszystkich pokojów)",
+                        "search": "Szukaj:",
+                        "paginate": {
+                            "first": "Pierwsza",
+                            "last": "Ostatnia",
+                            "next": "Następna",
+                            "previous": "Poprzednia"
+                        },
+                    },
+                    "aaData": rooms,
+                    "aoColumns": [
+                        {
+                            "mData": 'RoomModel',
+                            "bVisible": false
+                        },
+                        {
+                            "sTitle": "Zdjęcie",
+                            "mData": 'RoomModel',
+                            "bSortable": false,
+                            "sWidth": "200px",
+                            "mRender": function (data) {
+                                return '<img src="Images/' + data.Name + '.jpg" style="width:100%">';
+                            },
+                        },
+                        {
+                            "sTitle": "Szczegóły",
+                            "mData": 'RoomModel',
+                            "mRender": function (data) {
+                                return '<div> <h3>' + data.Name + '</h3> <br/> <h4> Cena za noc: ' + data.Price + 'zł</h4> <br/><h5> Maksymalna liczba gości: ' + data.MaxPerson + '</h5> </div>';
+                            }
+                        },
+                        {
+                            "sTitle": "Wyposażenie",
+                            "mData": 'RoomModel',
+                            "mRender": function (data) {
+                                var content = '<div>';
+                                if (data.RoomOptionModel.OnePersonBed >= 1) {
+                                    content += '<h5> <span class="glyphicon glyphicon-bed" aria-hidden="true"></span> Łóżka 1 osobowe: ' + data.RoomOptionModel.OnePersonBed + '</h5>';
+                                }
+                                if (data.RoomOptionModel.TwoPersonBed >= 1) {
+                                    content += '<h5> <span class="glyphicon glyphicon-bed" aria-hidden="true"></span> Łóżka 2 osobowe: ' + data.RoomOptionModel.TwoPersonBed + '</h5>';
+                                }
+                                if (data.RoomOptionModel.AirConditioning) {
+                                    content += '<h5> <span class="glyphicon glyphicon-send" aria-hidden="true"> </span> Klimatyzacja </h5>';
+                                }
+                                if (data.RoomOptionModel.Balcony) {
+                                    content += '<h5> <span class="glyphicon glyphicon-inbox" aria-hidden="true"> </span> Balkon </h5>';
+                                }
+                                if (data.RoomOptionModel.ChildBed) {
+                                    content += '<h5> <span class="glyphicon glyphicon-baby-formula" aria-hidden="true"> </span> Łóżko dziecięce </h5>';
+                                }
+                                if (data.RoomOptionModel.WiFi) {
+                                    content += '<h5> <span class="glyphicon glyphicon-signal" aria-hidden="true"> </span> WiFi </h5>';
+                                }
+                                content += '</div>';
+                                return content;
+                            }
+                        },
+                        {
+                            "sTitle": "Cena",
+                            "mRender": function (data, type, full) {
+                                return '<div> <h3 style="text-align: center">' + full.TotalPrice + 'zł</h3> <br/><br/> <a class="btn btn-primary reserve" name="' + full.RoomModel.Id + '" style="width:100%; font-weight:bold"> Rezerwuj <span class="glyphicon glyphicon-chevron-right" style="float:right" aria-hidden="true"></span></a></div>';
+                            }
+                        },
+                    ],
+                    "destroy": true
+                });
+            },
+            error: function (data) {
+                alert('Nie udało się znaleźć pokojów na podstawie podanych kryteriów. Porszę spróbować ponownie.');
+            }
+        });
+    });
+
+    $(document).on("click", ".reserve", function(event){
+        var roomId = parseInt(event.target.name);
+        var dateStart = $('#ReservationStartDate').val();
+        var dateEnd = $('#ReservationEndDate').val();
+
+        var url = "Reservation/Confirmation?roomId=" + roomId + "&reservationStartDate=" + dateStart + "&reservationEndDate=" + dateEnd;
+
+        var username = '@Context.User.Identity.GetUserName()';
+        if (username === "") {
+            url = "~/Reservation/Confirmation?roomId=" + roomId + "%26reservationStartDate=" + dateStart + "%26reservationEndDate=" + dateEnd
+            url = "Account/Login?ReturnUrl=" + url;
+        }
+
+        window.location.href = url;
+    });
+</script>

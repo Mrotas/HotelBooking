@@ -1,0 +1,94 @@
+﻿<h2>Rezerwacje</h2>
+
+<br />
+
+<table id="reservationsTable" class="table table-bordered table-stripped"></table>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.css" />
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
+<script>
+
+    var dateTimeReviver = function (value) {
+        var a;
+        if (typeof value === 'string') {
+            a = /\/Date\((\d*)\)\//.exec(value);
+            if (a) {
+                return new Date(+a[1]);
+            }
+        }
+        return value;
+    }
+
+    $(document).ready(function () {
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: 'Reservation/GetReservations',
+            dataType: 'json',
+            success: function (data) {
+                var reservations = data;
+                var oTable = $('#reservationsTable').dataTable({
+                    "language": {
+                        "lengthMenu": "Pokaż _MENU_ wierszy na stronę",
+                        "zeroRecords": "Nie dokonano jeszcze żadnej rezerwacji",
+                        "info": "Strona _PAGE_ z _PAGES_",
+                        "infoEmpty": "Brak rezerwacji",
+                        "infoFiltered": "(znaleziono z _MAX_ rezerwacji)",
+                        "search": "Szukaj:",
+                        "paginate": {
+                            "first": "Pierwsza",
+                            "last": "Ostatnia",
+                            "next": "Następna",
+                            "previous": "Poprzednia"
+                        },
+                    },
+                    "aaData": reservations,
+                    "aoColumns": [
+                        {
+                            "sTitle": "Numer Rezerwacji",
+                            "mData": "ReservationId"
+                        },
+                        {
+                            "sTitle": "Pokój",
+                            "mData": "RoomModel",
+                            "mRender": function (data) {
+                                return data.Name;
+                            },
+                        },
+                        {
+                            "sTitle": "Numer Pokoju",
+                            "mData": "RoomModel",
+                            "mRender": function (data) {
+                                return data.Number;
+                            }
+                        },
+                        {
+                            "sTitle": "Zakwaterowanie",
+                            "mData": "StartDate",
+                            "mRender": function (data) {
+                                var jsonDate = dateTimeReviver(data);
+                                return jsonDate.getDate() + '/' + (jsonDate.getMonth() + 1) + '/' + jsonDate.getFullYear()
+                            }
+                        },
+                        {
+                            "sTitle": "Wymeldowanie",
+                            "mData": "EndDate",
+                            "mRender": function (data) {
+                                var jsonDate = dateTimeReviver(data);
+                                return jsonDate.getDate() + '/' + (jsonDate.getMonth() + 1) + '/' + jsonDate.getFullYear()
+                            }
+                        },
+                        {
+                            "sTitle": "Id Rezerwującego",
+                            "mData": "UserId"
+                        },
+                    ],
+                    "destroy": true
+                });
+            },
+            error: function (data) {
+                alert('Nie udało się znaleźć pokojów na podstawie podanych kryteriów. Porszę spróbować ponownie.');
+            }
+        });
+    });
+</script>
