@@ -1,6 +1,10 @@
 ﻿@using Microsoft.AspNet.Identity
 @model Domain.Reservation.ViewModels.ConfirmationViewModel
 
+@{
+    ViewBag.Title = "Podsumowanie Rezerwacji";
+}
+
 <br />
 
 <h2>Rezerwacja</h2>
@@ -9,7 +13,7 @@
 <div class="row">
     <div class="col-md-4 ">
         <div id="ImagePlaceholder">
-            <img src="@Model.ImageUrl" class="image-placeholder"/>
+            <img src="@Model.ImageUrl" class="image-placeholder" />
         </div>
     </div>
 
@@ -18,7 +22,7 @@
         <div class="form-group">
             <label for="Name" class="control-label">Imię</label>
             <div>
-                <input id="Name" class="form-control" disabled value="@Model.UserName"/>
+                <input id="Name" class="form-control" disabled value="@Model.UserName" />
             </div>
         </div>
         <div class="form-group">
@@ -77,7 +81,7 @@
             </div>
         </div>
     </div>
-    <br/>
+    <br />
     <div>
         <button class="btn btn-danger col-sm-offset-9" id="Cancel">Anuluj</button>
         <button class="btn btn-primary" style="margin-left: 30px" id="DoReservation">Potwierdź</button>
@@ -89,9 +93,9 @@
         var roomName = $('#RoomName').val();
         var reservationStartDate = $('#ReservationStartDate').val();
         var reservationEndDate = $('#ReservationEndDate').val();
-        
+
         var url = "DoReservation?roomName=" + roomName + "&reservationStartDate=" + reservationStartDate + "&reservationEndDate=" + reservationEndDate;
-        
+
         window.location.href = url;
     });
 </script>
