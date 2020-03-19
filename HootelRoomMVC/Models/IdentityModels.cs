@@ -19,8 +19,7 @@ namespace HootelRoomMVC.Models
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
+        public ApplicationDbContext() : base("HotelBookingDb", throwIfV1Schema: false)
         {
         }
 

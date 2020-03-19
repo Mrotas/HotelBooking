@@ -10,7 +10,7 @@ namespace DataAccess.Dao
     {
         public RoomOption GetRoomOptionByRoomId(int roomId)
         {
-            using (var db = new DbContext())
+            using (var db = new HotelBookingDb())
             {
                 RoomOption roomOption = db.RoomOption.Single(x => x.RoomId == roomId);
                 return roomOption;
@@ -19,7 +19,7 @@ namespace DataAccess.Dao
 
         public IList<RoomOption> GetRoomOptionsByRoomIds(List<int> roomIds)
         {
-            using (var db = new DbContext())
+            using (var db = new HotelBookingDb())
             {
                 List<RoomOption> roomOptions = db.RoomOption.Where(x => roomIds.Contains(x.RoomId)).ToList();
                 return roomOptions;
@@ -28,7 +28,7 @@ namespace DataAccess.Dao
 
         public IList<RoomOption> GetRoomOptions(RoomOptionDaoCriteria criteria)
         {
-            using (var db = new DbContext())
+            using (var db = new HotelBookingDb())
             {
                 List<RoomOption> roomOptions = db.RoomOption.ToList();
                 if (criteria.AirConditioning)

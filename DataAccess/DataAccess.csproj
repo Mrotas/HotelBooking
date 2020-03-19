@@ -69,6 +69,7 @@
     <Compile Include="Entities\Room.cs" />
     <Compile Include="Entities\RoomOption.cs" />
     <Compile Include="Entities\User.cs" />
+    <Compile Include="HotelBookingDb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
