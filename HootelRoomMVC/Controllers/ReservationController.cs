@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using Common.Enum;
 using Domain.Reservation;
 using Domain.Reservation.Models;
 using Domain.Reservation.ViewModels;
@@ -92,12 +93,20 @@ namespace HootelRoomMVC.Controllers
                 RoomModel = roomModel,
                 UserId = user.UserId,
                 StartDate = DateTime.ParseExact(reservationStartDate, "dd/MM/yyyy", null),
-                EndDate = DateTime.ParseExact(reservationEndDate, "dd/MM/yyyy", null)
+                EndDate = DateTime.ParseExact(reservationEndDate, "dd/MM/yyyy", null),
+                Status = (int) ReservationStatus.New
             };
 
             _reservationService.DoReservation(reservationModel);
 
             return View("Summary", reservationModel);
+        }
+
+        public JsonResult CancelReservation(int reservationId)
+        {
+            _reservationService.CancelReservation(reservationId);
+
+            return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         private List<string> GetViewRoomOptions(RoomOptionModel roomOptionModel)

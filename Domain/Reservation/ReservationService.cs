@@ -1,4 +1,5 @@
-﻿using DataAccess.Dao;
+﻿using Common.Enum;
+using DataAccess.Dao;
 using DataAccess.Dao.Interfaces;
 using Domain.Reservation.Models;
 using Domain.Room.Models;
@@ -76,12 +77,13 @@ namespace Domain.Reservation
                                                                 },
                                                                 UserId = reservation.UserId,
                                                                 StartDate = reservation.StartDate,
-                                                                EndDate = reservation.EndDate
+                                                                EndDate = reservation.EndDate,
+                                                                Status = reservation.Status
                                                             }).ToList();
 
             return userReservationModels;
         }
-
+        
         public List<int> GetReservedRoomsIdsByDateRange(DateTime reservationStartDate, DateTime reservationEndDate)
         {
             List<DataAccess.Entities.Reservation> reservations = _reservationDao.GetReservationsByDateRange(reservationStartDate, reservationEndDate);
@@ -96,6 +98,11 @@ namespace Domain.Reservation
             DataAccess.Entities.Reservation reservation = reservationModel.ToDto();
 
             _reservationDao.Insert(reservation);
+        }
+
+        public void CancelReservation(int reservationId)
+        {
+            _reservationDao.UpdateReservationStatus(reservationId, (int) ReservationStatus.Cancelled);
         }
     }
 }

@@ -44,5 +44,16 @@ namespace DataAccess.Dao
                 db.SaveChanges();
             }
         }
+
+        public void UpdateReservationStatus(int reservationId, int status)
+        {
+            using (var db = new HotelBookingDb())
+            {
+                Reservation reservation = db.Reservation.Single(x => x.Id == reservationId);
+                reservation.Status = status;
+
+                db.SaveChanges();
+            }
+        }
     }
 }

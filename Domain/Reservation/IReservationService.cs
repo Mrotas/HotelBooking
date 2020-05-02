@@ -10,5 +10,6 @@ namespace Domain.Reservation
         List<ReservationModel> GetUserReservations(int userId);
         List<int> GetReservedRoomsIdsByDateRange(DateTime reservationStartDate, DateTime reservationEndDate);
         void DoReservation(ReservationModel reservationModel);
+        void CancelReservation(int reservationId);
     }
 }

@@ -10,5 +10,6 @@ namespace DataAccess.Dao.Interfaces
         List<Reservation> GetReservationsByUserId(int userId);
         List<Reservation> GetReservationsByDateRange(DateTime reservationStartDate, DateTime reservationEndDate);
         void Insert(Reservation reservation);
+        void UpdateReservationStatus(int reservationId, int status);
     }
 }

@@ -8,6 +8,26 @@
 
 <table id="reservationsTable" class="table table-bordered table-stripped"></table>
 
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Anulowanie rezerwacji</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmCancelModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Tak</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.css" />
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
 <script>
@@ -47,6 +67,12 @@
                         },
                     },
                     "aaData": reservations,
+                    'columnDefs': [                        
+                        {
+                            "targets": 6,
+                            "className": "text-center",
+                        }
+                    ],
                     "aoColumns": [
                         {
                             "sTitle": "Numer Rezerwacji",
@@ -83,8 +109,23 @@
                             }
                         },
                         {
-                            "sTitle": "Id Rezerwującego",
-                            "mData": "UserId"
+                            "sTitle": "Status",
+                            "mData": "StatusDescription",
+                            "mRender": function (data) {
+                                return data;
+                            }
+                        },
+                        {
+                            "sTitle": "Zarządzaj",
+                            "mData": "Status",
+                            "mRender": function (data) {
+                                if (data !== 3) {
+                                    return '<button class="btn btn-xs btn-success reschedule" style="margin-right: 15px">Przebookuj</button>' +
+                                        '<button class="btn btn-xs btn-danger cancel">Odwołaj</button>';
+                                } else {
+                                    return '';
+                                }
+                            }
                         },
                     ],
                     "destroy": true
@@ -95,4 +136,41 @@
             }
         });
     });
+
+    $(document).on("click", ".cancel", function (event) {
+        var row = $(this).closest('tr');
+        var id = row.find('td:nth-child(1)').text().trim();
+
+        $('#confirmCancelModalBody').text('Czy na pewno chcesz odwołać rezerwację?');
+        $('#confirmCancelModal').data('id', id).modal('show');
+    });
+
+    $('#confirmCancel').on('click', function () {
+        var id = $('#confirmCancelModal').data('id');
+
+        $.ajax({
+            type: "POST",
+            url: '/Reservation/CancelReservation',
+            data: {
+                'reservationId': id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    location.reload();
+                } else {
+                    alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+                }
+            },
+            error: function () {
+                alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+            }
+        });
+    });
 </script>
+
+<style>
+    .text-center {
+        text-align: center;
+    }
+</style>
