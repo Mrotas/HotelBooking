@@ -38,6 +38,24 @@ namespace Domain.RoomOption
             return roomOptionModel;
         }
 
+        public List<RoomOptionModel> GetAllRoomOptions()
+        {
+            IList<DataAccess.Entities.RoomOption> roomOptions = _roomOptionDao.GetAllRoomOptions();
+
+            List<RoomOptionModel> roomOptionModels = roomOptions.Select(x => new RoomOptionModel
+            {
+                AirConditioning = x.AirConditioning,
+                Balcony = x.Balcony,
+                ChildBed = x.ChildBed,
+                WiFi = x.WiFi,
+                OnePersonBed = x.OnePersonBed,
+                TwoPersonBed = x.TwoPersonBed,
+                RoomId = x.RoomId
+            }).ToList();
+
+            return roomOptionModels;
+        }
+
         public List<RoomOptionModel> GetRoomOptions(SearchRoomCriteria criteria)
         {
             var roomOptionCriteria = new RoomOptionDaoCriteria

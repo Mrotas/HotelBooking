@@ -9,5 +9,6 @@ namespace DataAccess.Dao.Interfaces
         RoomOption GetRoomOptionByRoomId(int roomId);
         IList<RoomOption> GetRoomOptionsByRoomIds(List<int> roomIds);
         IList<RoomOption> GetRoomOptions(RoomOptionDaoCriteria criteria);
+        IList<RoomOption> GetAllRoomOptions();
     }
 }

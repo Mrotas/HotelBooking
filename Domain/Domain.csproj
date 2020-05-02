@@ -54,6 +54,7 @@
     <Compile Include="RoomOption\Models\RoomOptionModel.cs" />
     <Compile Include="RoomOption\RoomOptionService.cs" />
     <Compile Include="Room\IRoomService.cs" />
+    <Compile Include="Room\Models\RoomAvailabilitySearchModel.cs" />
     <Compile Include="Room\Models\RoomModel.cs" />
     <Compile Include="Room\Models\SearchRoomModel.cs" />
     <Compile Include="Room\RoomService.cs" />

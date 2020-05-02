@@ -24,7 +24,8 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Znajdź pokoje", "Index", "Room", null, new { style = "color:aliceblue!important" })</li>
+                    <li>@Html.ActionLink("Bookuj", "Index", "Room", null, new { style = "color:aliceblue!important" })</li>
+                    <li>@Html.ActionLink("Sprawdź pokoje", "List", "Room", null, new { style = "color:aliceblue!important" })</li>
                     @if (Request.IsAuthenticated)
                     {
                         if (Context.User.IsInRole("Administrator"))

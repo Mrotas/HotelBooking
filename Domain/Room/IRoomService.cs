@@ -9,6 +9,8 @@ namespace Domain.Room
         RoomModel GetRoomModel(int roomId);
         RoomModel GetRoomModelByRoomName(string roomName);
         List<RoomModel> GetRoomModelsByRoomIds(List<int> roomIds);
+        IList<RoomViewModel> GetAllRoomModels();
         IList<RoomViewModel> GetRoomModels(SearchRoomModel searchRoomModel);
+        bool IsRoomAvailable(RoomAvailabilitySearchModel roomAvailabilitySearchModel);
     }
 }

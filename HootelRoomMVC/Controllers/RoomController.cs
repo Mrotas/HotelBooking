@@ -25,10 +25,22 @@ namespace HootelRoomMVC.Controllers
             return View();
         }
 
+        public ActionResult List()
+        {
+            IList<RoomViewModel> rooms = _roomService.GetAllRoomModels();
+            return View(rooms);
+        }
+        
         public JsonResult SearchRoom(SearchRoomModel searchRoomModel)
         {
             IList<RoomViewModel> matchRooms = _roomService.GetRoomModels(searchRoomModel);
             return Json(matchRooms, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult IsRoomAvailable(RoomAvailabilitySearchModel roomAvailabilitySearchModel)
+        {
+            bool isAvailable = _roomService.IsRoomAvailable(roomAvailabilitySearchModel);
+            return Json(isAvailable, JsonRequestBehavior.AllowGet);
         }
     }
 }

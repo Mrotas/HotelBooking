@@ -8,6 +8,7 @@ namespace Domain.RoomOption
     {
         RoomOptionModel GetRoomOptionByRoomId(int roomId);
         List<RoomOptionModel> GetRoomOptionsByRoomIds(List<int> roomIds);
+        List<RoomOptionModel> GetAllRoomOptions();
         List<RoomOptionModel> GetRoomOptions(SearchRoomCriteria criteria);
     }
 }

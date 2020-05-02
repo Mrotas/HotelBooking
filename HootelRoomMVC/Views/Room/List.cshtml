@@ -1,0 +1,209 @@
+﻿@using Microsoft.AspNet.Identity
+@model IList<Domain.Room.ViewModels.RoomViewModel>
+
+@{
+    ViewBag.Title = "Pokoje";
+}
+
+<div class="list-container">
+    @foreach (var room in Model)
+    {
+        <div class="card">
+            <div class="card-container">
+                <div class="row">
+                    <div class="col-md-5">
+                        <img src="@($"../Images/{room.RoomModel.Name}.jpg")">
+                    </div>
+                    <div class="col-md-4">
+                        <h2>@room.RoomModel.Name</h2>
+                        <h3>@(room.RoomModel.Price)zł</h3>
+                        <h4>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </h4>
+                    </div>
+                    <div class="col-md-3" style="height: inherit">
+                        @if (room.RoomModel.RoomOptionModel.OnePersonBed >= 1)
+                        {
+                            <h4> <span class="glyphicon glyphicon-bed" aria-hidden="true"></span> @($"Łóżka 1 osobowe: {room.RoomModel.RoomOptionModel.OnePersonBed}")</h4>
+                        }
+                        @if (room.RoomModel.RoomOptionModel.TwoPersonBed >= 1)
+                        {
+                            <h4> <span class="glyphicon glyphicon-bed" aria-hidden="true"></span> @($"Łóżka 2 osobowe: {room.RoomModel.RoomOptionModel.TwoPersonBed}")</h4>
+                        }
+                        @if (room.RoomModel.RoomOptionModel.AirConditioning)
+                        {
+                            <h4> <span class="glyphicon glyphicon-send" aria-hidden="true"> </span> Klimatyzacja </h4>
+                        }
+                        @if (room.RoomModel.RoomOptionModel.Balcony)
+                        {
+                            <h4> <span class="glyphicon glyphicon-inbox" aria-hidden="true"> </span> Balkon </h4>
+                        }
+                        @if (room.RoomModel.RoomOptionModel.ChildBed)
+                        {
+                            <h4> <span class="glyphicon glyphicon-baby-formula" aria-hidden="true"> </span> Łóżko dziecięce </h4>
+                        }
+                        @if (room.RoomModel.RoomOptionModel.WiFi)
+                        {
+                            <h4> <span class="glyphicon glyphicon-signal" aria-hidden="true"> </span> WiFi </h4>
+                        }
+                    </div>
+                </div>
+                <button id="checkAvailability" onclick="showAvailability()" data-arg1="@room.RoomModel.Id" class="btn btn-primary" style="float:right; margin-top: -35px;">Sprawdź dostępność</button>
+            </div>
+        </div>
+    }
+</div>
+
+<div id="availabilityContainer" class="availabilityContainer" hidden>
+    <div class="form-group col-md-3">
+        <label for="ReservationStartDate">Zameldowanie:</label>
+        <input class="form-control" type="text" name="ReservationStartDate" id="ReservationStartDate" autocomplete="off" />
+    </div>
+
+    <div class="form-group col-md-3">
+        <label for="ReservationEndDate">Wymeldowanie:</label>
+        <input class="form-control" type="text" name="ReservationEndDate" id="ReservationEndDate" autocomplete="off" />
+    </div>
+
+    <div class="form-group col-md-1" style="margin-top: 25px">
+        <button id="check" class="btn btn-primary">Sprawdź</button>
+    </div>
+
+    <div class="form-group col-md-5" style="margin-top: 25px">
+        <span id="checkResult"></span>
+        <button id="reserve" class="btn btn-success" style="display:none">Rezerwuj</button>
+    </div>
+</div>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+    var checkingRoomId;
+
+    function getDate(element) {
+        var date;
+        try {
+            date = $.datepicker.parseDate('dd/mm/yy', element.value);
+        } catch (error) {
+            date = null;
+        }
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    }
+
+    $(function () {
+        $("#ReservationStartDate").datepicker({
+            dateFormat: 'dd/mm/yy',
+            minDate: 0
+        }).on("change", function () {
+            $("#ReservationEndDate").datepicker("option", "minDate", getDate(this));
+        });
+
+        $("#ReservationEndDate").datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+    });
+
+    showAvailability = () => {
+        checkingRoomId = event.target.getAttribute('data-arg1');
+        var card = $(event.target).closest(".card");
+        card.after($('#availabilityContainer'));
+        if ($(card.next()).attr('hidden')) {
+            $(card.next()).removeAttr('hidden');
+        } else {
+            $(card.next()).attr('hidden', 'hidden');
+            clearCheckResult();
+        }
+    }
+
+    var clearCheckResult = function () {
+        $('#reserve').hide();
+        $('#checkResult').text('');
+        $('#checkResult').removeClass('success');
+        $('#checkResult').removeClass('error');
+    }
+
+    $('#check').on('click', function () {
+
+        clearCheckResult();
+
+        var roomAvailabilitySearchModel = {
+            RoomId: checkingRoomId,
+            ReservationStartDate: $.datepicker.parseDate('dd/mm/yy', $('#ReservationStartDate').val()),
+            ReservationEndDate: $.datepicker.parseDate('dd/mm/yy', $('#ReservationEndDate').val())
+        }
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: 'IsRoomAvailable',
+            data: JSON.stringify({ roomAvailabilitySearchModel: roomAvailabilitySearchModel }),
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    $('#checkResult').text('Pokój w wybranym terminie jest dostępny!');
+                    $('#checkResult').addClass('success');
+                    $('#reserve').show();
+                } else {
+                    $('#checkResult').text('Pokój w wybranym terminie jest niedostępny :(');
+                    $('#checkResult').addClass('error');
+                    $('#reserve').hide();
+                }
+            }
+        });
+    });
+
+    $(document).on("click", "#reserve", function(){
+        var dateStart = $('#ReservationStartDate').val();
+        var dateEnd = $('#ReservationEndDate').val();
+
+        var url = "../Reservation/Confirmation?roomId=" + checkingRoomId + "&reservationStartDate=" + dateStart + "&reservationEndDate=" + dateEnd;
+
+        var username = '@Context.User.Identity.GetUserName()';
+        if (username === "") {
+            url = "~/Reservation/Confirmation?roomId=" + checkingRoomId + "%26reservationStartDate=" + dateStart + "%26reservationEndDate=" + dateEnd
+            url = "../Account/Login?ReturnUrl=" + url;
+        }
+
+        window.location.href = url;
+    });
+</script>
+
+<style>
+    .list-container {
+        margin-top: 100px;
+    }
+
+    .card {
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        transition: 0.3s;
+        border-radius: 5px; /* 5px rounded corners */
+        margin-bottom: 50px;
+    }
+
+    .card-container {
+        padding: 20px;
+    }
+
+    .availabilityContainer {
+        margin-bottom: 150px;
+        margin-top: -25px;
+    }
+
+    /*Add rounded corners to the top left and the top right corner of the image*/
+    img {
+        border-radius: 5px 5px 5px 5px;
+        width: 400px;
+        height: 300px;
+    }
+
+    .success {
+        font-weight: bold;
+        color: forestgreen;
+    }
+
+    .error {
+        font-weight: bold;
+        color: red;
+    }
+</style>

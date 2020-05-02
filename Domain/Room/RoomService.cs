@@ -30,6 +30,30 @@ namespace Domain.Room
             _reservationService = reservationService;
         }
 
+        public IList<RoomViewModel> GetAllRoomModels()
+        {
+            IList<DataAccess.Entities.Room> rooms = _roomDao.GetAllRooms();
+
+            List<RoomOptionModel> roomOptions = _roomOptionService.GetAllRoomOptions();
+
+            List<RoomViewModel> allRooms = (from room in rooms
+                                              join roomOption in roomOptions on room.Id equals roomOption.RoomId
+                                              select new RoomViewModel
+                                              {
+                                                  RoomModel = new RoomModel
+                                                  {
+                                                      Id = room.Id,
+                                                      Name = room.Name,
+                                                      Number = room.Number,
+                                                      MaxPerson = room.MaxPerson,
+                                                      Price = room.Price,
+                                                      RoomOptionModel = roomOption
+                                                  }                                                  
+                                              }).ToList();
+
+            return allRooms;
+        }
+
         public IList<RoomViewModel> GetRoomModels(SearchRoomModel searchRoomModel)
         {
             var searchRoomCriteria = new SearchRoomCriteria
@@ -126,6 +150,15 @@ namespace Domain.Room
             };
 
             return roomModel;
+        }
+
+        public bool IsRoomAvailable(RoomAvailabilitySearchModel roomAvailabilitySearchModel)
+        {
+            DataAccess.Entities.Room room = _roomDao.GetRoomByRoomId(roomAvailabilitySearchModel.RoomId);
+
+            List<int> reservedRoomsIds = _reservationService.GetReservedRoomsIdsByDateRange(roomAvailabilitySearchModel.ReservationStartDate, roomAvailabilitySearchModel.ReservationEndDate);
+
+            return !reservedRoomsIds.Contains(room.Id);
         }
 
         private double GetTotalPrice(DateTime reservationStartDate, DateTime reservationEndDate, double dayPrice)

@@ -10,5 +10,6 @@ namespace DataAccess.Dao.Interfaces
         Room GetRoomByRoomName(string roomName);
         List<Room> GetRoomByRoomsIds(List<int> roomIds);
         IList<Room> GetRooms(SearchRoomCriteria criteria);
+        IList<Room> GetAllRooms();
     }
 }

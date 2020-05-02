@@ -51,5 +51,14 @@ namespace DataAccess.Dao
                 return roomOptions;
             }
         }
+
+        public IList<RoomOption> GetAllRoomOptions()
+        {
+            using (var db = new HotelBookingDb())
+            {
+                List<RoomOption> roomOptions = db.RoomOption.ToList();
+                return roomOptions;
+            }
+        }
     }
 }
