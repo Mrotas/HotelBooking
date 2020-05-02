@@ -88,6 +88,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Anulowanie rezerwacji</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmCancelModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie</button>
+                <button type="button" class="btn btn-danger" id="confirmCnacel">Tak</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $('#DoReservation').on('click', function () {
         var roomName = $('#RoomName').val();
@@ -97,5 +117,14 @@
         var url = "DoReservation?roomName=" + roomName + "&reservationStartDate=" + reservationStartDate + "&reservationEndDate=" + reservationEndDate;
 
         window.location.href = url;
+    });
+
+    $('#Cancel').on('click', function () {
+        $('#confirmCancelModalBody').text('Czy na pewno chcesz anulować rezerwację?');
+        $('#confirmCancelModal').modal('show');
+    });
+
+    $('#confirmCnacel').on('click', function () {
+        window.location.href = '../Home';
     });
 </script>
