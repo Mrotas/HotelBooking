@@ -122,5 +122,15 @@ namespace Domain.Reservation
         {
             _reservationDao.Delete(reservationId);
         }
+
+        public void RescheduleReservation(int reservationId, DateTime reservationStartDate, DateTime reservationEndDate)
+        {
+            DataAccess.Entities.Reservation reservation = _reservationDao.GetReservationById(reservationId);
+
+            reservation.StartDate = reservationStartDate;
+            reservation.EndDate = reservationEndDate;
+
+            _reservationDao.UpdateReservation(reservation);
+        }
     }
 }

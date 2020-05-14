@@ -130,6 +130,13 @@ namespace HootelRoomMVC.Controllers
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
+        public JsonResult RescheduleReservation(int reservationId, string reservationStartDate, string reservationEndDate)
+        {
+            _reservationService.RescheduleReservation(reservationId, DateTime.ParseExact(reservationStartDate, "dd/MM/yyyy", null), DateTime.ParseExact(reservationEndDate, "dd/MM/yyyy", null));
+
+            return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
         private List<string> GetViewRoomOptions(RoomOptionModel roomOptionModel)
         {
             var roomOptions = new List<string>();

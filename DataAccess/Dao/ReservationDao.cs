@@ -17,6 +17,15 @@ namespace DataAccess.Dao
             }
         }
 
+        public Reservation GetReservationById(int reservationId)
+        {
+            using (var db = new HotelBookingDb())
+            {
+                Reservation reservation = db.Reservation.Single(x => x.Id == reservationId);
+                return reservation;
+            }
+        }
+
         public List<Reservation> GetReservationsByUserId(int userId)
         {
             using (var db = new HotelBookingDb())
@@ -41,6 +50,22 @@ namespace DataAccess.Dao
             using (var db = new HotelBookingDb())
             {
                 db.Reservation.Add(reservation);
+                db.SaveChanges();
+            }
+        }
+        
+        public void UpdateReservation(Reservation reservationEntity)
+        {
+            using (var db = new HotelBookingDb())
+            {
+                Reservation reservation = db.Reservation.Single(x => x.Id == reservationEntity.Id);
+
+                reservation.RoomId = reservationEntity.Status;
+                reservation.UserId = reservationEntity.UserId;
+                reservation.StartDate = reservationEntity.StartDate;
+                reservation.EndDate = reservationEntity.EndDate;
+                reservation.Status = reservationEntity.Status;
+
                 db.SaveChanges();
             }
         }

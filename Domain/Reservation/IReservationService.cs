@@ -14,5 +14,6 @@ namespace Domain.Reservation
         void RequestReservationCancellation(int reservationId);
         void CancelReservation(int reservationId);
         void DeleteReservation(int reservationId);
+        void RescheduleReservation(int reservationId, DateTime reservationStartDate, DateTime reservationEndDate);
     }
 }

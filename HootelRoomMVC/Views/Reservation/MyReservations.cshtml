@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Microsoft.AspNet.Identity
+
+@{
     ViewBag.Title = "Moje Rezerwacje";
 }
 
@@ -28,7 +30,41 @@
     </div>
 </div>
 
+<div class="modal fade" id="rescheduleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 800px" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Przebookowanie rezerwacji</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="rescheduleModalBody">
+                <div style="display:flex; justify-content:space-between">
+                    <label for="ReservationStartDate">Zameldowanie:</label>
+                    <input class="form-control" style="width: 170px" type="text" name="ReservationStartDate" id="ReservationStartDate" autocomplete="off" />
+                                
+                    <label for="ReservationEndDate">Wymeldowanie:</label>
+                    <input class="form-control" style="width: 170px" type="text" name="ReservationEndDate" id="ReservationEndDate" autocomplete="off" />
+                                
+                    <button id="checkAvailability" class="btn btn-primary">Sprawdź</button>
+                </div>
+
+                <div class="form-group" style="margin-top: 25px">
+                    <span id="checkAvailabilityResult"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Anuluj</button>
+                <button type="button" class="btn btn-success" id="reschedule" disabled="disabled">Przebookuj</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.css" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
 <script>
 
@@ -67,7 +103,7 @@
                         },
                     },
                     "aaData": reservations,
-                    'columnDefs': [                        
+                    'columnDefs': [
                         {
                             "targets": 6,
                             "className": "text-center",
@@ -118,9 +154,9 @@
                         {
                             "sTitle": "Zarządzaj",
                             "mData": "Status",
-                            "mRender": function (data) {
+                            "mRender": function (data, type, row) {
                                 if (data < 2) {
-                                    return '<button class="btn btn-xs btn-success reschedule" style="margin-right: 15px">Przebookuj</button>' +
+                                    return '<button onclick="showAvailability()" data-arg1="' + row.ReservationId + '" data-arg2="' + row.RoomModel.Id + '" class="btn btn-xs btn-success reschedule" style="margin-right: 15px">Przebookuj</button>' +
                                         '<button class="btn btn-xs btn-danger cancel">Odwołaj</button>';
                                 } else {
                                     return '<button class="btn btn-xs btn-success reschedule" style="margin-right: 15px" disabled="disabled">Przebookuj</button>' +
@@ -168,10 +204,115 @@
             }
         });
     });
+
+    function getDate(element) {
+        var date;
+        try {
+            date = $.datepicker.parseDate('dd/mm/yy', element.value);
+        } catch (error) {
+            date = null;
+        }
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    }
+
+    $(function () {
+        $("#ReservationStartDate").datepicker({
+            dateFormat: 'dd/mm/yy',
+            minDate: 0
+        }).on("change", function () {
+            $("#ReservationEndDate").datepicker("option", "minDate", getDate(this));
+        });
+
+        $("#ReservationEndDate").datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+    });
+
+    var checkingReservationId;
+    var checkingRoomId;
+
+    showAvailability = () => {
+        checkingReservationId = event.target.getAttribute('data-arg1');
+        checkingRoomId = event.target.getAttribute('data-arg2');
+        $('#rescheduleModal').data('checkingRoomId', checkingRoomId).modal('show');
+    }
+
+    var clearCheckResult = function () {
+        $('#reserve').hide();
+        $('#checkResult').text('');
+        $('#checkResult').removeClass('success');
+        $('#checkResult').removeClass('error');
+    }
+
+    $('#checkAvailability').on('click', function () {
+
+        clearCheckResult();
+
+        var roomAvailabilitySearchModel = {
+            RoomId: checkingRoomId,
+            ReservationStartDate: $.datepicker.parseDate('dd/mm/yy', $('#ReservationStartDate').val()),
+            ReservationEndDate: $.datepicker.parseDate('dd/mm/yy', $('#ReservationEndDate').val())
+        }
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            url: '/Room/IsRoomAvailable',
+            data: JSON.stringify({ roomAvailabilitySearchModel: roomAvailabilitySearchModel }),
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    $('#checkAvailabilityResult').text('Pokój w wybranym terminie jest dostępny!');
+                    $('#checkAvailabilityResult').addClass('success');
+                    $('#reschedule').removeAttr('disabled');
+                } else {
+                    $('#checkAvailabilityResult').text('Pokój w wybranym terminie jest niedostępny :(');
+                    $('#checkAvailabilityResult').addClass('error');
+                    $('#reschedule').attr('disabled', 'disabled');
+                }
+            }
+        });
+    });
+
+    $(document).on("click", "#reschedule", function () {
+        var dateStart = $('#ReservationStartDate').val();
+        var dateEnd = $('#ReservationEndDate').val();
+
+        $.ajax({
+            type: "POST",
+            url: '/Reservation/RescheduleReservation',
+            data: {
+                'reservationId': checkingReservationId,
+                'reservationStartDate': dateStart,
+                'reservationEndDate': dateEnd
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    location.reload();
+                } else {
+                    alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+                }
+            },
+            error: function () {
+                alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+            }
+        });
+    });
 </script>
 
 <style>
     .text-center {
         text-align: center;
+    }
+
+    .success {
+        font-weight: bold;
+        color: forestgreen;
+    }
+
+    .error {
+        font-weight: bold;
+        color: red;
     }
 </style>
