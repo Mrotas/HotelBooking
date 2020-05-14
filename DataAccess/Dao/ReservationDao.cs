@@ -55,5 +55,16 @@ namespace DataAccess.Dao
                 db.SaveChanges();
             }
         }
+
+        public void Delete(int reservationId)
+        {
+            using (var db = new HotelBookingDb())
+            {
+                Reservation reservation = db.Reservation.Single(x => x.Id == reservationId);
+
+                db.Reservation.Remove(reservation);
+                db.SaveChanges();
+            }
+        }
     }
 }

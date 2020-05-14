@@ -48,7 +48,8 @@ namespace Domain.Reservation
                                                           },
                                                           UserId = reservation.UserId,
                                                           StartDate = reservation.StartDate,
-                                                          EndDate = reservation.EndDate
+                                                          EndDate = reservation.EndDate,
+                                                          Status = reservation.Status
                                                       }).ToList();
 
             return allReservations;
@@ -88,7 +89,7 @@ namespace Domain.Reservation
         {
             List<DataAccess.Entities.Reservation> reservations = _reservationDao.GetReservationsByDateRange(reservationStartDate, reservationEndDate);
 
-            List<int> reservedRoomIds = reservations.Select(x => x.RoomId).ToList();
+            List<int> reservedRoomIds = reservations.Where(x => x.Status != (int) ReservationStatus.Cancelled).Select(x => x.RoomId).ToList();
 
             return reservedRoomIds;
         }
@@ -97,12 +98,29 @@ namespace Domain.Reservation
         {
             DataAccess.Entities.Reservation reservation = reservationModel.ToDto();
 
+            reservation.Status = (int)ReservationStatus.New;
+
             _reservationDao.Insert(reservation);
+        }
+
+        public void AcceptReservation(int reservationId)
+        {
+            _reservationDao.UpdateReservationStatus(reservationId, (int)ReservationStatus.Accepted);
+        }
+
+        public void RequestReservationCancellation(int reservationId)
+        {
+            _reservationDao.UpdateReservationStatus(reservationId, (int)ReservationStatus.PendingCancellation);
         }
 
         public void CancelReservation(int reservationId)
         {
             _reservationDao.UpdateReservationStatus(reservationId, (int) ReservationStatus.Cancelled);
+        }
+
+        public void DeleteReservation(int reservationId)
+        {
+            _reservationDao.Delete(reservationId);
         }
     }
 }

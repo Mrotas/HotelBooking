@@ -119,14 +119,15 @@
                             "sTitle": "Zarządzaj",
                             "mData": "Status",
                             "mRender": function (data) {
-                                if (data !== 3) {
+                                if (data < 2) {
                                     return '<button class="btn btn-xs btn-success reschedule" style="margin-right: 15px">Przebookuj</button>' +
                                         '<button class="btn btn-xs btn-danger cancel">Odwołaj</button>';
                                 } else {
-                                    return '';
+                                    return '<button class="btn btn-xs btn-success reschedule" style="margin-right: 15px" disabled="disabled">Przebookuj</button>' +
+                                        '<button class="btn btn-xs btn-danger cancel" disabled="disabled">Odwołaj</button>';
                                 }
                             }
-                        },
+                        }
                     ],
                     "destroy": true
                 });

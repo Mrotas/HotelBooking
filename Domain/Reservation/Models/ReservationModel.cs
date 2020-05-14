@@ -19,9 +19,11 @@ namespace Domain.Reservation.Models
                 switch (Status)
                 {
                     case (int) ReservationStatus.New:
-                        return "Oczekuje na akceptacje";
+                        return "Oczekuje na zaakceptowanie";
                     case (int) ReservationStatus.Accepted:
                         return "Zaakceptowano";
+                    case (int) ReservationStatus.PendingCancellation:
+                        return "Oczekuje na potwierdzenie odwołania";
                     case (int) ReservationStatus.Cancelled:
                         return "Odwołano";
                     default:

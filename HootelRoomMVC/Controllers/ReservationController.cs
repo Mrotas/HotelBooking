@@ -102,9 +102,30 @@ namespace HootelRoomMVC.Controllers
             return View("Summary", reservationModel);
         }
 
+        public JsonResult AcceptReservation(int reservationId)
+        {
+            _reservationService.AcceptReservation(reservationId);
+
+            return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult RequestReservationCancellation(int reservationId)
+        {
+            _reservationService.RequestReservationCancellation(reservationId);
+
+            return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
         public JsonResult CancelReservation(int reservationId)
         {
             _reservationService.CancelReservation(reservationId);
+
+            return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult DeleteReservation(int reservationId)
+        {
+            _reservationService.DeleteReservation(reservationId);
 
             return Json(true, JsonRequestBehavior.AllowGet);
         }

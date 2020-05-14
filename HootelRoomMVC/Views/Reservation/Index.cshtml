@@ -8,6 +8,66 @@
 
 <table id="reservationsTable" class="table table-bordered table-stripped"></table>
 
+<div class="modal fade" id="confirmAcceptModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Akceptacja rezerwacji</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmAcceptModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Nie</button>
+                <button type="button" class="btn btn-success" id="confirmAccept">Tak</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Odwołanie rezerwacji</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmCancelModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie</button>
+                <button type="button" class="btn btn-danger" id="confirmCancel">Tak</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Usunięcie rezerwacji</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmDeleteModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Nie</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Tak</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.css" />
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
 <script>
@@ -50,18 +110,21 @@
                     "aoColumns": [
                         {
                             "sTitle": "Numer Rezerwacji",
-                            "mData": "ReservationId"
+                            "mData": "ReservationId",
+                            "width": "10%"
                         },
                         {
                             "sTitle": "Pokój",
                             "mData": "RoomModel",
+                            "width": "10%",
                             "mRender": function (data) {
                                 return data.Name;
-                            },
+                            }
                         },
                         {
                             "sTitle": "Numer Pokoju",
                             "mData": "RoomModel",
+                            "width": "5%",
                             "mRender": function (data) {
                                 return data.Number;
                             }
@@ -69,6 +132,7 @@
                         {
                             "sTitle": "Zakwaterowanie",
                             "mData": "StartDate",
+                            "width": "15%",
                             "mRender": function (data) {
                                 var jsonDate = dateTimeReviver(data);
                                 return jsonDate.getDate() + '/' + (jsonDate.getMonth() + 1) + '/' + jsonDate.getFullYear()
@@ -77,6 +141,7 @@
                         {
                             "sTitle": "Wymeldowanie",
                             "mData": "EndDate",
+                            "width": "15%",
                             "mRender": function (data) {
                                 var jsonDate = dateTimeReviver(data);
                                 return jsonDate.getDate() + '/' + (jsonDate.getMonth() + 1) + '/' + jsonDate.getFullYear()
@@ -84,14 +149,163 @@
                         },
                         {
                             "sTitle": "Id Rezerwującego",
-                            "mData": "UserId"
+                            "mData": "UserId",
+                            "width": "10%"
                         },
+                        {
+                            "sTitle": "Status",
+                            "mData": "StatusDescription",
+                            "width": "20%",
+                            "mRender": function (data) {
+                                return data;
+                            }
+                        },
+                        {
+                            "sTitle": "Zarządzaj",
+                            "mData": "Status",
+                            "width": "15%",
+                            "mRender": function (data) {
+                                if (data === 1) {
+                                    return '<button class="btn btn-xs btn-success accept" style="margin-right: 15px">Zaakceptuj</button>' +
+                                        '<button class="btn btn-xs btn-danger delete">Usuń</button>';
+                                } else if (data === 3) {
+                                    return '<button class="btn btn-xs btn-success cancel" style="margin-right: 15px">Odwołaj</button>' +
+                                        '<button class="btn btn-xs btn-danger delete">Usuń</button>';
+                                } else {
+                                    return '<button class="btn btn-xs btn-success reject" style="margin-right: 15px" disabled="disabled">Zaakceptuj</button>' +
+                                        '<button class="btn btn-xs btn-danger delete">Usuń</button>';
+                                }
+                            }
+                        }
                     ],
                     "destroy": true
                 });
             },
             error: function (data) {
                 alert('Nie udało się znaleźć pokojów na podstawie podanych kryteriów. Porszę spróbować ponownie.');
+            }
+        });
+    });
+
+    $(document).on("click", ".accept", function (event) {
+        var row = $(this).closest('tr');
+        var id = row.find('td:nth-child(1)').text().trim();
+        var roomName = row.find('td:nth-child(2)').text().trim();
+        var roomNumber = row.find('td:nth-child(3)').text().trim();
+        var reservationStart = row.find('td:nth-child(4)').text().trim();
+        var reservationEnd = row.find('td:nth-child(5)').text().trim();
+
+        $('#confirmAcceptModalBody').text('Zaakceptować rezerwację?');
+        $('#confirmAcceptModalBody').append('<ul>' +
+            '<li>Pokój: ' + roomName + '</li>' +
+            '<li>Numer: ' + roomNumber + '</li>' +
+            '<li>Zakwaterowanie: ' + reservationStart + '</li>' +
+            '<li>Wymeldowanie: ' + reservationEnd + '</li>' +
+            '</ul>');
+        $('#confirmAcceptModal').data('id', id).modal('show');
+    });
+
+    $('#confirmAccept').on('click', function () {
+        var id = $('#confirmAcceptModal').data('id');
+
+        $.ajax({
+            type: "POST",
+            url: '/Reservation/AcceptReservation',
+            data: {
+                'reservationId': id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    location.reload();
+                } else {
+                    alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+                }
+            },
+            error: function () {
+                alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+            }
+        });
+    });
+
+    $(document).on("click", ".cancel", function (event) {
+        var row = $(this).closest('tr');
+        var id = row.find('td:nth-child(1)').text().trim();
+        var roomName = row.find('td:nth-child(2)').text().trim();
+        var roomNumber = row.find('td:nth-child(3)').text().trim();
+        var reservationStart = row.find('td:nth-child(4)').text().trim();
+        var reservationEnd = row.find('td:nth-child(5)').text().trim();
+
+        $('#confirmCancelModalBody').text('Czy na pewno odwołać rezerwację?');
+        $('#confirmCancelModalBody').append('<ul>' +
+            '<li>Pokój: ' + roomName + '</li>' +
+            '<li>Numer: ' + roomNumber + '</li>' +
+            '<li>Zakwaterowanie: ' + reservationStart + '</li>' +
+            '<li>Wymeldowanie: ' + reservationEnd + '</li>' +
+            '</ul>');
+        $('#confirmCancelModal').data('id', id).modal('show');
+    });
+
+    $('#confirmCancel').on('click', function () {
+        var id = $('#confirmCancelModal').data('id');
+
+        $.ajax({
+            type: "POST",
+            url: '/Reservation/CancelReservation',
+            data: {
+                'reservationId': id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    location.reload();
+                } else {
+                    alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+                }
+            },
+            error: function () {
+                alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+            }
+        });
+    });
+
+    $(document).on("click", ".delete", function (event) {
+        var row = $(this).closest('tr');
+        var id = row.find('td:nth-child(1)').text().trim();
+        var roomName = row.find('td:nth-child(2)').text().trim();
+        var roomNumber = row.find('td:nth-child(3)').text().trim();
+        var reservationStart = row.find('td:nth-child(4)').text().trim();
+        var reservationEnd = row.find('td:nth-child(5)').text().trim();
+
+        $('#confirmDeleteModalBody').text('Czy na pewno usunąć rezerwację?');
+        $('#confirmDeleteModalBody').append('<ul>' +
+            '<li>Pokój: ' + roomName + '</li>' +
+            '<li>Numer: ' + roomNumber + '</li>' +
+            '<li>Zakwaterowanie: ' + reservationStart + '</li>' +
+            '<li>Wymeldowanie: ' + reservationEnd + '</li>' +
+            '</ul>');
+        $('#confirmDeleteModal').data('id', id).modal('show');
+    });
+
+    $('#confirmDelete').on('click', function () {
+        var id = $('#confirmDeleteModal').data('id');
+
+        $.ajax({
+            type: "POST",
+            url: '/Reservation/DeleteReservation',
+            data: {
+                'reservationId': id
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data) {
+                    location.reload();
+                } else {
+                    alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
+                }
+            },
+            error: function () {
+                alert('Coś poszło nie tak, proszę spróbować jeszcze raz.');
             }
         });
     });
