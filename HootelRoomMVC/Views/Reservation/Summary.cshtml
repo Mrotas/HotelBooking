@@ -11,5 +11,5 @@
     <p>Numer Twojego pokoju to <label>@Model.RoomModel.Number</label>.</p>
     <p>Okres Twojego pobytu to @Model.StartDate.ToString("dd/MM/yyyy") - @Model.EndDate.ToString("dd/MM/yyyy").</p>
     <p>Doba pokojowa zaczyna się od godziny 15:00, a kończy o 12:00 ostatniego dnia pobytu.</p>
-    Aby wrócić na stronę główną, kliknij <a href="@Url.Action("Index", "Home")" class="alert-link">TUTAJ</a>.
+    Aby przejść do swoich rezerwacji, kliknij <a href="@Url.Action("MyReservations", "Reservation")" class="alert-link">TUTAJ</a>.
 </div>
